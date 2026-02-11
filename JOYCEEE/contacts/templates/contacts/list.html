@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Joyce Contact List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            height: 700px;              /* 👈 SAME HEIGHT */
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        /* HEADER - Blue Gradient */
+        .header {
+            background: linear-gradient(135deg, #5a8db8 0%, #4a7da8 100%);
+            color: white;
+            text-align: center;
+            padding: 36px 30px;      /* 🔒 locked */
+            border-radius: 0 0 25px 25px; /* 🔒 matches container */
+            margin-bottom: 24px;    /* 🔒 reduced + consistent */
+        }
+
+        .header h1 {
+            font-size: 28px;        /* 🔒 same */
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            margin-bottom: 0;      /* 🔒 remove variance */
+        }
+
+        .header p {
+            font-size: 15px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+
+        /* CONTACT LIST AREA - Scrollable */
+        .contact-list {
+            padding: 0 30px 30px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .contact-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .contact-list::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .contact-list::-webkit-scrollbar-thumb {
+            background: #9b8a9d;
+            border-radius: 4px;
+        }
+
+        /* CONTACT CARD */
+        .contact-card {
+            background: white;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 18px;
+            padding: 25px 30px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .contact-card:hover {
+            border-color: #9b8a9d;
+            box-shadow: 0 5px 15px rgba(155, 138, 157, 0.1);
+        }
+
+        .contact-field {
+            display: flex;
+            align-items: center; /* FIX */
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+
+
+        .field-label {
+            width: 160px;
+            font-weight: 600;
+            color: #2f2f2f;
+            flex-shrink: 0;
+            line-height: 1.4;
+        }
+
+
+        .field-value {
+            flex: 1;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .edit-input {
+            width: 100%;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            color: #444;
+            padding: 6px 0;
+            border: none;
+            border-bottom: 1px solid transparent;
+            background: transparent;
+            line-height: 1.5;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            border-bottom: 2px solid #5a8db8;
+        }
+
+        .edit-input[readonly] {
+            border-bottom: none;
+            padding: 6px 0;
+        }
+
+
+        /* CATEGORY BADGE - Non-editable */
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            background: #f0f7ff;
+            color: #4a7da8;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+
+        /* BUTTONS */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 28px;
+        }
+
+
+        .btn {
+            padding: 12px 28px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+            min-width: 160px;
+        }
+
+        .btn-delete {
+            background: #f8f9fa;
+            color: #666;
+            border: 1.5px solid #ddd;
+        }
+
+        .btn-delete:hover {
+            background: #ffebee;
+            color: #f44336;
+            border-color: #f44336;
+        }
+
+        .btn-update {
+            background: #9b8a9d;
+            color: white;
+            display: none;
+        }
+
+        .btn-update:hover {
+            background: #8a798c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(155, 138, 157, 0.3);
+        }
+
+        .btn-edit {
+            background: #5a8db8;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #4a7da8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(90, 141, 184, 0.3);
+        }
+
+        /* ADD CONTACT BUTTON */
+        .add-contact-container {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #5a8db8 0%, #4a7da8 100%);
+            color: white;
+            padding: 14px 40px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(90, 141, 184, 0.3);
+        }
+
+        /* MESSAGE */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #888;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Joyce Contact List</h1>
+    </div>
+
+    <!-- MESSAGE DISPLAY -->
+    <div id="message" class="message"></div>
+
+    <!-- CONTACT LIST - SCROLLABLE -->
+    <div class="contact-list" id="contactList">
+        {% if contacts %}
+            {% for contact in contacts %}
+            <div class="contact-card" data-id="{{ contact.id }}">
+                <form class="contact-form" data-id="{{ contact.id }}">
+                    {% csrf_token %}
+                    
+                    <!-- Name Field -->
+                    <div class="contact-field">
+                        <div class="field-label">Full Name:</div>
+                        <div class="field-value">
+                            <input type="text" class="edit-input" name="name" 
+                                   value="{{ contact.name }}" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div class="contact-field">
+                        <div class="field-label">Phone Number:</div>
+                        <div class="field-value">
+                            <input type="text" class="edit-input" name="phone" 
+                                   value="{{ contact.phone }}" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="contact-field">
+                        <div class="field-label">Email:</div>
+                        <div class="field-value">
+                            <input type="email" class="edit-input" name="email" 
+                                   value="{{ contact.email|default:'' }}" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Notes Field -->
+                    <div class="contact-field">
+                        <div class="field-label">Notes:</div>
+                        <div class="field-value">
+                            <input type="text" class="edit-input" name="notes" 
+                                   value="{{ contact.notes|default:'' }}" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Category Display - NON-EDITABLE -->
+                    <div class="contact-field">
+                        <div class="field-label">Category:</div>
+                        <div class="field-value">
+                            <span class="category-badge">{{ contact.category|default:'Personal' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-delete delete-btn">Delete Contact</button>
+                        <button type="button" class="btn btn-edit edit-btn">Edit Contact</button>
+                        <button type="submit" class="btn btn-update update-btn">Update Contact</button>
+                    </div>
+                </form>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <h3>No contacts yet</h3>
+                <p>Add your first contact to get started</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- ADD CONTACT BUTTON -->
+    <div class="add-contact-container">
+        <a href="{% url 'add_contact' %}" class="btn-add">Add New Contact</a>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const messageDiv = document.getElementById('message');
+    
+        const nameRegex = /^[A-Za-z]+(?:\s[A-Za-z]+)+$/;
+        const phoneRegex = /^09\d{9}$/;
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => messageDiv.style.display = 'none', 3000);
+        }
+    
+        document.querySelectorAll('.contact-form').forEach(form => {
+            const inputs = form.querySelectorAll('.edit-input');
+            const updateBtn = form.querySelector('.update-btn');
+            const editBtn = form.querySelector('.edit-btn');
+            const deleteBtn = form.querySelector('.delete-btn');
+            const categoryBadge = form.querySelector('.category-badge');
+    
+            // Store original values
+            const originalValues = {};
+            inputs.forEach(input => originalValues[input.name] = input.value);
+    
+            // Detect changes
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    let changed = false;
+                    inputs.forEach(i => {
+                        if (originalValues[i.name] !== i.value) {
+                            changed = true;
+                        }
+                    });
+                    updateBtn.style.display = changed ? 'block' : 'none';
+                });
+            });
+
+            // EDIT BUTTON — ENABLE EDITING
+document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        const card = this.closest('.contact-card');
+        const form = card.querySelector('.contact-form');
+
+        const inputs = form.querySelectorAll('.edit-input');
+        const editBtn = form.querySelector('.edit-btn');
+        const updateBtn = form.querySelector('.update-btn');
+        const deleteBtn = form.querySelector('.delete-btn');
+
+        // Unlock inputs
+        inputs.forEach(input => {
+            input.removeAttribute('readonly');
+        });
+
+        // Focus first input
+        inputs[0].focus();
+
+        // Toggle buttons
+        editBtn.style.display = 'none';
+        updateBtn.style.display = 'block';
+        deleteBtn.style.display = 'none';
+    });
+});
+    
+            // SUBMIT WITH VALIDATION
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+    
+                const contactId = form.dataset.id;
+    
+                const name = form.querySelector('[name="name"]').value.trim();
+                const phone = form.querySelector('[name="phone"]').value.trim();
+                const email = form.querySelector('[name="email"]').value.trim();
+                const notes = form.querySelector('[name="notes"]').value.trim();
+    
+                // VALIDATION
+                if (!nameRegex.test(name)) {
+                    showMessage('Full name must contain letters only and at least first & last name.', 'error');
+                    return;
+                }
+    
+                if (!phoneRegex.test(phone)) {
+                    showMessage('Invalid PH phone number. Use format: 09123456789', 'error');
+                    return;
+                }
+    
+                if (!gmailRegex.test(email)) {
+                    showMessage('Email must be a valid @gmail.com address.', 'error');
+                    return;
+                }
+    
+                if (!notes) {
+                    showMessage('Notes field cannot be empty.', 'error');
+                    return;
+                }
+    
+                const formData = { name, phone, email, notes };
+    
+                try {
+                    const response = await fetch(`/update/${contactId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify(formData)
+                    });
+    
+                    const data = await response.json();
+    
+                    if (data.success) {
+                        if (data.category) {
+                            categoryBadge.textContent = data.category;
+                        }
+    
+                        // Lock inputs again
+                        inputs.forEach(input => {
+                            input.setAttribute('readonly', true);
+                            originalValues[input.name] = input.value;
+                        });
+    
+                        updateBtn.style.display = 'none';
+                        editBtn.style.display = 'block';
+                        deleteBtn.style.display = 'block';
+    
+                        showMessage('Contact updated successfully!', 'success');
+                    } else {
+                        showMessage(data.error || 'Update failed.', 'error');
+                    }
+                } catch (err) {
+                    showMessage('Network error. Please try again.', 'error');
+                }
+            });
+        });
+    
+        // DELETE
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                if (confirm('Are you sure you want to delete this contact?')) {
+                    const id = this.closest('.contact-card').dataset.id;
+                    window.location.href = `/delete/${id}/`;
+                }
+            });
+        });
+    
+        // AUTO SCROLL
+        const contactList = document.getElementById('contactList');
+        if (contactList && contactList.scrollHeight > contactList.clientHeight) {
+            contactList.scrollTop = contactList.scrollHeight;
+        }
+    });
+</script>
+</body>
+</html>

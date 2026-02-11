@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Joyce Contact Book</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            height: 700px;              /* 👈 SAME HEIGHT */
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .header {
+            background: linear-gradient(135deg, #5a8db8 0%, #4a7da8 100%);
+            color: white;
+            text-align: center;
+            padding: 36px 30px;      /* 🔒 locked */
+            border-radius: 0 0 25px 25px; /* 🔒 matches container */
+            margin-bottom: 24px;    /* 🔒 reduced + consistent */
+        }
+
+        .header h1 {
+            font-size: 28px;        /* 🔒 same */
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            margin-bottom: 0;      /* 🔒 remove variance */
+        }
+
+        .header p {
+            font-size: 15px;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+
+
+        .form-area {
+            padding: 0 30px 30px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            width: 150px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #444;
+            letter-spacing: 0.2px;
+        }
+
+        input, textarea {
+            flex: 1;
+            padding: 14px 16px;
+            border: 1.5px solid #dcdfe3;
+            border-radius: 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            color: #2f2f2f;
+            background: #fafbfc;
+            line-height: 1.5;
+            transition: all 0.25s ease;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #5a8db8;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(90, 141, 184, 0.12);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .required {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        input[readonly] {
+            background: #f0f7ff;
+            color: #4a7da8;
+            font-weight: 500;
+            border-color: #d0e3ff;
+        }
+
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 14px;
+            letter-spacing: 0.4px;
+            border: none;
+            background-clip: padding-box;
+        }
+
+        .btn:focus-visible {
+            outline: 3px solid rgba(90, 141, 184, 0.5);
+            outline-offset: 2px;
+        }
+
+        .btn-list {
+            background: #9b8a9d;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #5a8db8 0%, #4a7da8 100%);
+            color: white;
+        }
+
+        .message {
+            margin: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: none;
+            text-align: center;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>Joyce Contact Book</h1>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="form-area">
+        <form method="post" id="contactForm">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" name="name" required placeholder="Juan Dela Cruz">
+            </div>
+
+            <div class="form-group">
+                <label>Phone *</label>
+                <input type="text" name="phone" required placeholder="09123456789">
+            </div>
+
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="text" name="email" required placeholder="example@gmail.com">
+            </div>
+
+            <div class="form-group">
+                <label>Notes *</label>
+                <textarea name="notes" required placeholder="Required notes about the contact"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Category</label>
+                <input type="text" value="Auto-generated by ML" readonly>
+            </div>
+
+            <div class="buttons">
+                <a href="{% url 'contact_list' %}" class="btn btn-list">View List</a>
+                <button type="submit" class="btn btn-add">Add Contact</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('contactForm');
+        const messageDiv = document.getElementById('message');
+    
+        const nameRegex = /^[A-Za-z]+(?:\s[A-Za-z]+)+$/;
+        const phoneRegex = /^09\d{9}$/;
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+        }
+    
+        form.addEventListener('submit', (e) => {
+            messageDiv.style.display = 'none';
+    
+            const name = form.name.value.trim();
+            const phone = form.phone.value.trim();
+            const email = form.email.value.trim();
+    
+            // FULL NAME VALIDATION
+            if (!nameRegex.test(name)) {
+                e.preventDefault();
+                showMessage(
+                    'Full name must contain letters only and at least first & last name.',
+                    'error'
+                );
+                return;
+            }
+    
+            // PHONE VALIDATION (PH)
+            if (!phoneRegex.test(phone)) {
+                e.preventDefault();
+                showMessage(
+                    'Invalid PH number. Use format: 09123456789',
+                    'error'
+                );
+                return;
+            }
+    
+            // EMAIL VALIDATION (GMAIL ONLY)
+            if (!gmailRegex.test(email)) {
+                e.preventDefault();
+                showMessage(
+                    'Email must be a valid @gmail.com address.',
+                    'error'
+                );
+                return;
+            }
+    
+            showMessage('All details verified. Saving contact...', 'success');
+        });
+    });
+    </script>    
+
+</body>
+</html>
