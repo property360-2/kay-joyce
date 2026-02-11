@@ -11,10 +11,12 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-your-secret-key-her
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = 'RENDER' not in os.environ
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    # Add a wildcard for subdomains just in case
+    ALLOWED_HOSTS.append('.onrender.com')
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,7 +70,15 @@ DATABASES = {
 
 # Render Database Configuration (Persistent Disk)
 if 'RENDER' in os.environ:
-    DATABASES['default']['NAME'] = Path('/var/data/db.sqlite3')
+    # Use the path for the persistent disk mount
+    # Ensure the directory exists
+    DB_DIR = Path('/var/data')
+    if not DB_DIR.exists():
+        # If /var/data doesn't exist (not mounted), use a local one as fallback
+        # This prevents 500 errors if the disk isn't configured yet
+        DATABASES['default']['NAME'] = BASE_DIR / 'db.sqlite3'
+    else:
+        DATABASES['default']['NAME'] = DB_DIR / 'db.sqlite3'
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -102,3 +112,32 @@ else:
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging configuration to see errors in Render logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

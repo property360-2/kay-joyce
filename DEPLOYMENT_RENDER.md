@@ -34,7 +34,7 @@ Use the following settings exactly.
 ### Instance Type
 -   **Type**: **Starter** (or higher).
     > [!IMPORTANT]
-    > **Free Tier Consideration**: The "Free" tier on Render *does not support Persistent Disks*. To use SQLite reliably, you typically need the **Team** or **Individual Paid** plan that supports disks.
+    > **Free Tier Consideration**: The "Free" tier on Rende 1r *does not support Persistent Disks*. To use SQLite reliably, you typically need the **Team** or **Individual Paid** plan that supports disks.
     > If you are on the Free tier, your database will encompass a temporary filesystem and will be **deleted** every time the app deploys or restarts.
 
 ## Step 4: Environment Variables
